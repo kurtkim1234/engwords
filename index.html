@@ -1,0 +1,127 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>영단어 학습</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f3f6fa;
+    text-align: center;
+    padding: 25px 15px;
+  }
+  h2 { color: #253858; }
+  .card {
+    background: white;
+    border-radius: 20px;
+    padding: 35px 15px;
+    margin: 25px auto;
+    max-width: 400px;
+    box-shadow: 0 3px 12px #ddd;
+  }
+  #word { font-size: 34px; font-weight: bold; }
+  #meaning { font-size: 23px; color: #2874a6; min-height: 35px; }
+  button {
+    padding: 13px 18px;
+    margin: 5px;
+    font-size: 16px;
+    border: 0;
+    border-radius: 10px;
+    background: #3478f6;
+    color: white;
+  }
+  .done { background: #25845b; }
+</style>
+</head>
+<body>
+
+<h2>영단어 공부</h2>
+<p id="progress"></p>
+
+<div class="card">
+  <div id="word"></div>
+  <p id="meaning"></p>
+  <button onclick="showMeaning()">뜻 보기</button>
+  <button onclick="speak()">발음 듣기</button>
+</div>
+
+<button onclick="prevWord()">이전</button>
+<button onclick="nextWord()">다음</button>
+<button class="done" onclick="markDone()">암기 완료</button>
+
+<p id="status"></p>
+
+<script>
+const words = [
+  ["apple", "사과"],
+  ["economic", "경제의"],
+  ["increase", "증가하다"],
+  ["demand", "수요"],
+  ["supply", "공급"],
+  ["predict", "예측하다"],
+  ["estimate", "추정하다"],
+  ["analysis", "분석"],
+  ["variable", "변수"],
+  ["probability", "확률"]
+];
+
+let index = 0;
+let memorized = JSON.parse(
+  localStorage.getItem("memorized") || "[]"
+);
+
+function displayWord() {
+  document.getElementById("word").textContent =
+    words[index][0];
+  document.getElementById("meaning").textContent = "";
+
+  document.getElementById("progress").textContent =
+    (index + 1) + " / " + words.length;
+
+  document.getElementById("status").textContent =
+    "암기 완료: " + memorized.length + "개" +
+    (memorized.includes(index) ? " ✓" : "");
+}
+
+function showMeaning() {
+  document.getElementById("meaning").textContent =
+    words[index][1];
+}
+
+function nextWord() {
+  index = (index + 1) % words.length;
+  displayWord();
+}
+
+function prevWord() {
+  index = (index - 1 + words.length) % words.length;
+  displayWord();
+}
+
+function markDone() {
+  if (!memorized.includes(index)) {
+    memorized.push(index);
+    localStorage.setItem(
+      "memorized", JSON.stringify(memorized)
+    );
+  }
+  displayWord();
+}
+
+function speak() {
+  speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(
+    words[index][0]
+  );
+  utterance.lang = "en-US";
+  utterance.rate = 0.85;
+  speechSynthesis.speak(utterance);
+}
+
+displayWord();
+</script>
+
+</body>
+</html>
